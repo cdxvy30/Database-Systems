@@ -54,13 +54,6 @@ CREATE TABLE TwoWayContractPlayers (
   CHECK (GamePlayed <= 50)
 );
 
-CREATE TABLE PlayerPositions (
-  PlyID VARCHAR(36),
-  Position ENUM('Guard', 'Forward', 'Center') NOT NULL,
-  PRIMARY KEY (PlyID, Position),
-  FOREIGN KEY (PlyID) REFERENCES Players(PlyID)
-);
-
 CREATE TABLE Spokesman (
   SpokesmanID VARCHAR(36) PRIMARY KEY,
   SpokesFor VARCHAR(50) NOT NULL,
@@ -91,6 +84,48 @@ CREATE TABLE Coaches (
   FOREIGN KEY (TeamName) REFERENCES Teams(TeamName),
   CHECK (Age >= 0),
   CHECK (Experience >= 0)
+);
+
+CREATE TABLE Tactics (
+  TacticID INT NOT NULL AUTO_INCREMENT,
+  TacticName VARCHAR(30) NOT NULL,
+  PRIMARY KEY (TacticID)
+);
+
+CREATE TABLE Strategy (
+  StrategyID INT NOT NULL AUTO_INCREMENT,
+  StrategyName VARCHAR(30) NOT NULL,
+  PRIMARY KEY (StrategyID)
+);
+
+CREATE TABLE Shooting (
+  ShootingID INT NOT NULL AUTO_INCREMENT,
+  Motion ENUM('One-motion', 'One point five motion', 'Two-motion') NOT NULL,
+  PRIMARY KEY (ShootingID)
+);
+
+CREATE TABLE OffenseCoach (
+  CchID VARCHAR(36),
+  TacticID INT,
+  FOREIGN KEY (CchID) REFERENCES Coaches(CchID),
+  FOREIGN KEY (TacticID) REFERENCES Tactics(TacticID),
+  PRIMARY KEY (CchID, TacticID)
+);
+
+CREATE TABLE DefenseCoach (
+  CchID VARCHAR(36),
+  StrategyID INT,
+  FOREIGN KEY (CchID) REFERENCES Coaches(CchID),
+  FOREIGN KEY (StrategyID) REFERENCES Strategy(StrategyID),
+  PRIMARY KEY (CchID, StrategyID)
+);
+
+CREATE TABLE ShootingCoach (
+  CchID VARCHAR(36),
+  ShootingID INT,
+  FOREIGN KEY (CchID) REFERENCES Coaches(CchID),
+  FOREIGN KEY (ShootingID) REFERENCES Shooting(ShootingID),
+  PRIMARY KEY (CchID, ShootingID)
 );
 
 CREATE TABLE Games (
@@ -192,17 +227,12 @@ INSERT INTO Players (PlyID, PlyName, HeightFootInch, WeightLbs, TeamName, BackNu
 VALUES (UUID(), 'Lebron James', '6-9', 250, 'Lakers', '6', 38, 19, 'USA');
 INSERT INTO NormalContractPlayers (PlyID, ContractLen)
 VALUES ((SELECT PlyID FROM Players WHERE PlyName = 'Lebron James'), 3);
-INSERT INTO PlayerPositions (PlyID, Position)
-VALUES ((SELECT PlyID FROM Players WHERE PlyName = 'Lebron James'), 'Forward');
 
 INSERT INTO Players (PlyID, PlyName, HeightFootInch, WeightLbs, TeamName, BackNumber, Age, Experience, Country)
 VALUES (UUID(), 'Jayson Tatum', '6-8', 210, 'Celtics', '0', 25, 5, 'USA');
 INSERT INTO NormalContractPlayers (PlyID, ContractLen)
 VALUES ((SELECT PlyID FROM Players WHERE PlyName = 'Jayson Tatum'), 4);
-INSERT INTO PlayerPositions (PlyID, Position)
-VALUES ((SELECT PlyID FROM Players WHERE PlyName = 'Jayson Tatum'), 'Forward');
-INSERT INTO PlayerPositions (PlyID, Position)
-VALUES ((SELECT PlyID FROM Players WHERE PlyName = 'Jayson Tatum'), 'Guard');
+
 
 INSERT INTO Players (PlyID, PlyName, HeightFootInch, WeightLbs, TeamName, BackNumber, Age, Experience, Country)
 VALUES (UUID(), 'Stephen Curry', '6-2', 185, 'Warriors', '30', 35, 13, 'USA');
@@ -244,20 +274,47 @@ VALUES (UUID(), 'Jordan', 'Player', (SELECT PlyId FROM Players WHERE PlyName = '
 INSERT INTO Spokesman (SpokesmanID, SpokesFor, SpokesmanType, PlyID, TeamName)
 VALUES (UUID(), 'Adidas', 'Team', NULL, (SELECT TeamName FROM Teams WHERE TeamName = 'Warriors'));
 
-INSERT INTO Managers
-VALUES (UUID(), 'Bob Myers', 50, 12, 'Warriors');
-INSERT INTO Managers
-VALUES (UUID(), 'Brad Stevens', 50, 2, 'Celtics');
-INSERT INTO Managers
-VALUES (UUID(), 'Rod Pelinka', 50, 5, 'Lakers');
+INSERT INTO Managers VALUES (UUID(), 'Bob Myers', 50, 12, 'Warriors');
+INSERT INTO Managers VALUES (UUID(), 'Brad Stevens', 50, 2, 'Celtics');
+INSERT INTO Managers VALUES (UUID(), 'Rod Pelinka', 50, 5, 'Lakers');
 
-INSERT INTO Coaches
-VALUES (UUID(), 'Darwin Harm', 40, 1, 'Lakers');
-INSERT INTO Coaches
-VALUES (UUID(), 'Joseph Mazzulla', 40, 1, 'Celtics');
-INSERT INTO Coaches
-VALUES (UUID(), 'Steve Kerr', 40, 8, 'Warriors');
+INSERT INTO Coaches VALUES (UUID(), 'Darwin Harm', 40, 1, 'Lakers');
+INSERT INTO Coaches VALUES (UUID(), 'Joseph Mazzulla', 40, 1, 'Celtics');
+INSERT INTO Coaches VALUES (UUID(), 'Steve Kerr', 40, 8, 'Warriors');
+INSERT INTO Coaches VALUES (UUID(), 'Mike Brown', 40, 10, 'Warriors');
 
+INSERT INTO Tactics (TacticName) VALUES ('Spain Pick & Roll');
+INSERT INTO Tactics (TacticName) VALUES ('Pick & Roll');
+INSERT INTO Tactics (TacticName) VALUES ('5-out');
+INSERT INTO Tactics (TacticName) VALUES ('Run and Gun');
+INSERT INTO Strategy (StrategyName) VALUES ('ICE');
+INSERT INTO Strategy (StrategyName) VALUES ('Double Team');
+INSERT INTO Strategy (StrategyName) VALUES ('Baseline Trap');
+INSERT INTO Strategy (StrategyName) VALUES ('2-3 Zone');
+INSERT INTO Strategy (StrategyName) VALUES ('3-2 Zone');
+INSERT INTO Strategy (StrategyName) VALUES ('1-3-1 Zone');
+INSERT INTO Shooting (Motion) VALUES ('One-motion');
+INSERT INTO Shooting (Motion) VALUES ('One point five motion');
+INSERT INTO Shooting (Motion) VALUES ('Two-motion');
+
+INSERT INTO OffenseCoach (CchID, TacticID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Steve Kerr'), (SELECT TacticID FROM Tactics WHERE TacticID = 1));
+INSERT INTO OffenseCoach (CchID, TacticID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Steve Kerr'), (SELECT TacticID FROM Tactics WHERE TacticID = 3));
+INSERT INTO OffenseCoach (CchID, TacticID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Darwin Harm'), (SELECT TacticID FROM Tactics WHERE TacticID = 2));
+INSERT INTO DefenseCoach (CchID, StrategyID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Mike Brown'), (SELECT StrategyID FROM Strategy WHERE StrategyID = 1));
+INSERT INTO DefenseCoach (CchID, StrategyID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Mike Brown'), (SELECT StrategyID FROM Strategy WHERE StrategyID = 2));
+INSERT INTO DefenseCoach (CchID, StrategyID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Mike Brown'), (SELECT StrategyID FROM Strategy WHERE StrategyID = 3));
+INSERT INTO ShootingCoach (CchID, ShootingID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Joseph Mazzulla'), (SELECT ShootingID FROM Shooting WHERE ShootingID = 1));
+INSERT INTO ShootingCoach (CchID, ShootingID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Steve Kerr'), (SELECT ShootingID FROM Shooting WHERE ShootingID = 2));
+INSERT INTO ShootingCoach (CchID, ShootingID)
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Mike Brown'), (SELECT ShootingID FROM Shooting WHERE ShootingID = 3));
 
 INSERT INTO Games VALUES
 (UUID(), '2022-10-19', 'Warriors', 'Lakers', 123, 109, NULL);
@@ -333,10 +390,15 @@ SELECT * FROM Teams;
 SELECT * FROM Players;
 SELECT * FROM TwoWayContractPlayers;
 SELECT * FROM NormalContractPlayers;
-SELECT * FROM PlayerPositions;
 SELECT * FROM Spokesman;
 SELECT * FROM Managers;
 SELECT * FROM Coaches;
+SELECT * FROM Tactics;
+SELECT * FROM Strategy;
+SELECT * FROM Shooting;
+SELECT * FROM OffenseCoach;
+SELECT * FROM DefenseCoach;
+SELECT * FROM ShootingCoach;
 SELECT * FROM Games;
 SELECT * FROM Team_Play_Game;
 SELECT * FROM Player_Attend_Game;
