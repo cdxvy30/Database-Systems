@@ -14,7 +14,7 @@ CREATE TABLE self (
 
 /* create table */
 CREATE TABLE Teams (
-  TeamName VARCHAR(30) PRIMARY KEY,
+  TeamName VARCHAR(50) PRIMARY KEY,
   City VARCHAR(50) NOT NULL,
   Division ENUM('East', 'West'),
   GroupName ENUM('Atlantic', 'Central', 'Southeast', 'Northwest', 'Pacific', 'Southwest'),
@@ -30,7 +30,7 @@ CREATE TABLE Players (
   PlyName VARCHAR(50) NOT NULL,
   HeightFootInch VARCHAR(8) NOT NULL,
   WeightLbs INT NOT NULL,
-  TeamName VARCHAR(30),
+  TeamName VARCHAR(50),
   BackNumber VARCHAR(3),
   Age INT NOT NULL,
   Experience INT NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE Coaches (
   CchName VARCHAR(26) NOT NULL,
   Age INT NOT NULL,
   Experience INT NOT NULL,
-  TeamName VARCHAR(30),
+  TeamName VARCHAR(50),
   FOREIGN KEY (TeamName) REFERENCES Teams(TeamName),
   CHECK (Age >= 0),
   CHECK (Experience >= 0)
@@ -275,12 +275,12 @@ VALUES (UUID(), 'Jordan', 'Player', (SELECT PlyId FROM Players WHERE PlyName = '
 INSERT INTO Spokesman (SpokesmanID, SpokesFor, SpokesmanType, PlyID, TeamName)
 VALUES (UUID(), 'Adidas', 'Team', NULL, (SELECT TeamName FROM Teams WHERE TeamName = 'Warriors'));
 
-INSERT INTO Managers VALUES (UUID(), 'Bob Myers', 50, 12, 'Warriors');
-INSERT INTO Managers VALUES (UUID(), 'Brad Stevens', 50, 2, 'Celtics');
-INSERT INTO Managers VALUES (UUID(), 'Rod Pelinka', 50, 5, 'Lakers');
+INSERT INTO Managers VALUES (UUID(), 'Bob Myers', 48, 11, 'Warriors');
+INSERT INTO Managers VALUES (UUID(), 'Brad Stevens', 46, 2, 'Celtics');
+INSERT INTO Managers VALUES (UUID(), 'Rod Pelinka', 53, 5, 'Lakers');
 
-INSERT INTO Coaches VALUES (UUID(), 'Darwin Harm', 40, 1, 'Lakers');
-INSERT INTO Coaches VALUES (UUID(), 'Joseph Mazzulla', 40, 1, 'Celtics');
+INSERT INTO Coaches VALUES (UUID(), 'Darwin Ham', 49, 1, 'Lakers');
+INSERT INTO Coaches VALUES (UUID(), 'Joseph Mazzulla', 34, 1, 'Celtics');
 INSERT INTO Coaches VALUES (UUID(), 'Steve Kerr', 40, 8, 'Warriors');
 INSERT INTO Coaches VALUES (UUID(), 'Mike Brown', 40, 10, 'Warriors');
 
@@ -303,7 +303,7 @@ VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Steve Kerr'), (SELECT Tactic
 INSERT INTO OffenseCoach (CchID, TacticID)
 VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Steve Kerr'), (SELECT TacticID FROM Tactics WHERE TacticID = 3));
 INSERT INTO OffenseCoach (CchID, TacticID)
-VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Darwin Harm'), (SELECT TacticID FROM Tactics WHERE TacticID = 2));
+VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Darwin Ham'), (SELECT TacticID FROM Tactics WHERE TacticID = 2));
 INSERT INTO DefenseCoach (CchID, StrategyID)
 VALUES ((SELECT CchID FROM Coaches WHERE CchName = 'Mike Brown'), (SELECT StrategyID FROM Strategy WHERE StrategyID = 1));
 INSERT INTO DefenseCoach (CchID, StrategyID)
