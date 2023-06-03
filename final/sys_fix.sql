@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION pkg_path()
 AS $$
   from urllib.parse import quote
   import inspect
-  path = inspect.getfile(pkg)
+  path = inspect.getfile(quote)
   return path
 $$ LANGUAGE plpython3u;
 
