@@ -1,7 +1,7 @@
 .DS_Store
 
-.zip
+*.zip
 
-.out
+*.out
 
-.pyc
+*.pyc
